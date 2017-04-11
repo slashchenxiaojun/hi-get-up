@@ -10,6 +10,7 @@ int a = 1;
 int b = 1;
 assert a == b;
 ```
+
 由于在java中有装箱和拆箱的机制，所有的基本类型都有其对应的类
 byte(1 byte) -> Byte
 short(2 byte) -> Short
