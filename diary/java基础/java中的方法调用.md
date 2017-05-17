@@ -37,7 +37,7 @@ public class StaticDispatch {
   }
 }
 ```
-Human man=new Man();
+Human man = new Man();
 我们把"Human"称为变量的`静态类型`，后面的"Man"称为变量的`实际类型`，静态类型和实际类型在程序中都可以发生一些变化，区别是静态类型的变化仅仅在使用时发生，变量本身的静态类型不会被改变，并且最终的静态类型在编译器可知；而实际类型变化的结果在运行期才确定，编译器在编译期并不知道一个对象的实际类型是什么。
 
 编译器在重载时是通过参数的`静态类型`而不是`实际类型`作为判定的依据。并且静态类型在编译期可知，因此，编译阶段，Javac编译器会根据参数的静态类型决定使用哪个重载版本。
@@ -45,3 +45,39 @@ Human man=new Man();
 所有依赖静态类型来定位方法执行版本的分派动作称为静态分派。静态分派的典型应用就是方法重载。
 
 ##动态分派(方法的重写Overriding)
+
+```java
+public class DynamicDispatch {
+  static abstract class Human {
+    protected abstract void sayHello();
+  }
+
+  static class Man extends Human {
+    @Override
+    protected void sayHello() {
+      System.out.println("man say hello!");
+    }
+  }
+
+  static class Woman extends Human {
+    @Override
+    protected void sayHello() {
+      System.out.println("woman say hello!");
+    }
+  }
+
+  public static void main(String[] args) {
+    Human man = new Man();
+    Human woman = new Woman();
+    man.sayHello(); // man say hello!
+    woman.sayHello(); // woman say hello!
+  }
+}
+```
+###invokevirtual
+1、找到操作数栈顶的第一个元素所指向的对象的实际类型，记作C。
+2、如果在类型C中找到与常量中的描述符和简单名称相符合的方法，然后进行访问权限验证，如果验证通过则返回这个方法的直接引用，查找过程结束；如果验证不通过，则抛出java.lang.IllegalAccessError异常。
+3、否则未找到，就按照继承关系从下往上依次对类型C的各个父类进行第2步的搜索和验证过程。
+4、如果始终没有找到合适的方法，则跑出java.lang.AbstractMethodError异常。
+
+由于invokevirtual指令执行的第一步就是在运行期确定接收者的实际类型，所以两次调用中的invokevirtual指令把常量池中的类方法符号引用解析到了不同的直接引用上，这个过程就是Java语言方法重写的本质。我们把这种在运行期根据实际类型确定方法执行版本的分派过程称为动态分派。
